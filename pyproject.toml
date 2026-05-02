@@ -1,0 +1,32 @@
+[project]
+name = "wego-metroboard"
+version = "0.1.0"
+description = "A physical Metroboard for Nashville's WeGo Star commuter rail"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Luke Lancaster" }]
+requires-python = ">=3.11"
+dependencies = [
+    "gpiozero>=2.0",
+    "requests>=2.31",
+    "gtfs-realtime-bindings>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.4",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/wego_metroboard"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]

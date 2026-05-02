@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+
+# Environment / secrets
+.env
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Editors
+.idea/
+.vscode/
+
+# GTFS data (downloaded at runtime, not vendored)
+data/
+
+# Raw protobuf dumps (e.g., debug captures of vehiclepositions.pb)
+*.pb
+
+# OS junk
+.DS_Store
