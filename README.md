@@ -60,15 +60,17 @@ GPIOZERO_PIN_FACTORY=mock python scripts/hello_leds.py
 
 ### On the Raspberry Pi
 
-Install gpiozero's preferred backend (`lgpio` on bookworm) per the
-[gpiozero docs](https://gpiozero.readthedocs.io/), then run as above.
+See [`docs/PI_SETUP.md`](docs/PI_SETUP.md) for the full headless setup walkthrough
+(imaging the SD card, SSH key auth, OS update, installing `lgpio`, cloning and
+running). [`docs/WIRING.md`](docs/WIRING.md) has the breadboard layout and
+step-by-step wiring instructions.
 
 ## Layout
 
 ```
 src/wego_metroboard/   library code (stations, GPIO helpers, feed URLs)
 scripts/               runnable entry points (hello_leds.py, fetch_static.py)
-docs/                  PHASES.md, WIRING.md
+docs/                  PHASES.md, WIRING.md, PI_SETUP.md
 data/                  GTFS zip + extracted CSVs (gitignored, populated by fetch_static.py)
 tests/                 (empty for now)
 ```
