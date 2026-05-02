@@ -58,7 +58,9 @@ def verify(data_dir: Path) -> None:
         }
 
     with stop_times_path.open() as f:
-        star_stops = {row["stop_id"] for row in csv.DictReader(f) if row["trip_id"] in star_trip_ids}
+        star_stops = {
+            row["stop_id"] for row in csv.DictReader(f) if row["trip_id"] in star_trip_ids
+        }
 
     print(f"route 90 trips: {len(star_trip_ids)}, distinct stops: {len(star_stops)}")
     if len(star_stops) != 7:

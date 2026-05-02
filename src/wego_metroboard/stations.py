@@ -16,6 +16,7 @@ class Station:
     gpio: int  # BCM pin
 
 
+# fmt: off
 STATIONS: tuple[Station, ...] = (
     Station("MCSRVRF",  "Riverfront",       36.161803, -86.773763, 17),
     Station("MCSDONEL", "Donelson",         36.167003, -86.666539, 27),
@@ -25,5 +26,6 @@ STATIONS: tuple[Station, ...] = (
     Station("MCSHAM",   "Hamilton Springs", 36.234559, -86.367777, 25),
     Station("MCSLB",    "Lebanon",          36.212085, -86.297240,  5),
 )
+# fmt: on
 
 BY_STOP_ID: dict[str, Station] = {s.stop_id: s for s in STATIONS}
