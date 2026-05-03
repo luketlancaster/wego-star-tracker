@@ -5,7 +5,12 @@ A physical Metroboard — inspired by [designrules.co](https://www.designrules.c
 LED per station; an LED lights up when a train is at that station, driven by
 Nashville MTA's GTFS feeds.
 
-**Current phase:** Phase 0 — wiring sanity check. See [`docs/PHASES.md`](docs/PHASES.md).
+**Current phase:** Phase 1 — realtime polling. See [`docs/PHASES.md`](docs/PHASES.md).
+
+The Phase 0 wiring smoke test (`scripts/hello_leds.py`) and the Phase 1
+realtime polling loop (`scripts/run_realtime.py`) are both runnable. WeGo
+Star runs Mon–Fri only — the realtime board will be dark on weekends and
+holidays until Phase 2 lands a schedule fallback.
 
 ## Hardware
 
