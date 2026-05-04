@@ -23,18 +23,41 @@ Confirm wiring works before any network code exists.
 station whose `stop_id` matches a vehicle with `current_status == STOPPED_AT`.
 Console log every cycle. No schedule fallback yet.
 
-## Phase 2 — schedule fallback
+## Phase 2 — schedule-driven (current primary driver)
 
-Use static GTFS so the board does something interesting outside service hours:
-compute "where would a train be right now if running on schedule?" Optional
-"demo mode" replays the day at 10× speed when realtime is empty.
+WeGo's GTFS-realtime feed doesn't include the WeGo Star, so the static
+schedule *is* the driver — not a fallback. Each cycle the loop computes
+"where would a train be right now if running on schedule?" and lights the
+matching station LEDs.
 
 Respect `calendar_dates.txt` (holidays remove service — board goes dark).
 
-Three short-turn trips don't serve all 7 stations:
+### LED state encoding
+
+Each station LED has four states, set via gpiozero.PWMLED:
+
+| state    | meaning                                  | hardware                 |
+|----------|------------------------------------------|--------------------------|
+| off      | no train at the station                  | `pwmled.off()`           |
+| solid on | outbound (eastbound) only                | `pwmled.on()`            |
+| slow blink | inbound (westbound) only               | `pwmled.blink(0.6, 0.6)` |
+| soft pulse | both directions overlapping at this stop | `pwmled.pulse(0.8, 0.8)` |
+
+The "outbound" direction_id is inferred at startup from `trips.txt` —
+whichever direction has trips originating at Riverfront (`MCSRVRF`) is the
+eastbound direction. This stays correct even if WeGo flips the GTFS 0/1
+assignment.
+
+### Short-turn trips
+
+Three trips don't serve all 7 stations and are worth knowing about when
+debugging unexpected dark stations:
 
 - 6:53 AM and 4:20 PM outbounds: Riverfront → Mt. Juliet only
 - 7:45 AM and 5:05 PM inbounds: Mt. Juliet → Riverfront only
+
+The 5:05 PM inbound is also the most reliable rush-hour overlap window
+for verifying the "soft pulse" both-directions state.
 
 ## Phase 3 — addressable in-transit LEDs
 

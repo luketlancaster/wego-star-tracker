@@ -121,7 +121,67 @@ def windows_for_today(
     return windows
 
 
-def active_stops_at(windows: list[StopWindow], now: datetime) -> set[str]:
-    """stop_ids whose window contains `now` (interpreted in the agency's local time)."""
+def active_stops_at(windows: list[StopWindow], now: datetime) -> dict[str, set[int]]:
+    """stop_id → set of direction_ids whose window contains `now`.
+
+    A station with both an inbound and outbound train scheduled simultaneously
+    will appear with `{0, 1}`; the LED layer uses that to pick a "both
+    directions" visual. Empty dict means board goes dark.
+    """
     now_s = now.hour * 3600 + now.minute * 60 + now.second
-    return {w.stop_id for w in windows if w.start_s <= now_s <= w.end_s}
+    active: dict[str, set[int]] = {}
+    for w in windows:
+        if w.start_s <= now_s <= w.end_s:
+            active.setdefault(w.stop_id, set()).add(w.direction_id)
+    return active
+
+
+def outbound_direction_id(
+    data_dir: Path,
+    *,
+    route_id: str = WEGO_STAR_ROUTE_ID,
+    services: set[str] | None = None,
+    origin_stop_id: str = "MCSRVRF",
+) -> int:
+    """The GTFS direction_id for trips that originate at `origin_stop_id`.
+
+    For WeGo Star, trips starting at Riverfront are the eastbound (outbound)
+    trips. We infer rather than hardcode so the board stays correct if WeGo
+    ever flips the 0/1 assignment. Short-turn outbounds (Riverfront → Mt.
+    Juliet) still originate at Riverfront, so the outbound side is
+    unambiguous; inbound trips may originate at Lebanon *or* Mt. Juliet.
+
+    Raises ValueError if no direction (or more than one) has trips starting
+    at `origin_stop_id` — that would indicate a feed change worth eyeballing.
+    """
+    trip_directions: dict[str, int] = {}
+    for row in _read_csv(data_dir / "trips.txt"):
+        if row["route_id"] != route_id:
+            continue
+        if services is not None and row["service_id"] not in services:
+            continue
+        trip_directions[row["trip_id"]] = int(row["direction_id"])
+
+    first_stop: dict[str, tuple[int, str]] = {}
+    for row in _read_csv(data_dir / "stop_times.txt"):
+        trip_id = row["trip_id"]
+        if trip_id not in trip_directions:
+            continue
+        seq = int(row["stop_sequence"])
+        prev = first_stop.get(trip_id)
+        if prev is None or seq < prev[0]:
+            first_stop[trip_id] = (seq, row["stop_id"])
+
+    direction_origins: dict[int, set[str]] = {}
+    for trip_id, dir_id in trip_directions.items():
+        seq_stop = first_stop.get(trip_id)
+        if seq_stop is not None:
+            direction_origins.setdefault(dir_id, set()).add(seq_stop[1])
+
+    candidates = [d for d, origins in direction_origins.items() if origin_stop_id in origins]
+    if len(candidates) != 1:
+        raise ValueError(
+            f"cannot determine outbound direction_id: trips originating at "
+            f"{origin_stop_id!r} map to direction_ids {candidates}"
+        )
+    return candidates[0]
