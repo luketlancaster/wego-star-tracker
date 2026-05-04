@@ -5,12 +5,20 @@ A physical Metroboard — inspired by [designrules.co](https://www.designrules.c
 LED per station; an LED lights up when a train is at that station, driven by
 Nashville MTA's GTFS feeds.
 
-**Current phase:** Phase 1 — realtime polling. See [`docs/PHASES.md`](docs/PHASES.md).
+**Current phase:** Phase 2 — schedule-driven board. See [`docs/PHASES.md`](docs/PHASES.md).
 
-The Phase 0 wiring smoke test (`scripts/hello_leds.py`) and the Phase 1
-realtime polling loop (`scripts/run_realtime.py`) are both runnable. WeGo
-Star runs Mon–Fri only — the realtime board will be dark on weekends and
-holidays until Phase 2 lands a schedule fallback.
+> **Heads up:** WeGo's GTFS-realtime feed does not include the WeGo Star —
+> only the bus system. We verified the absence in `vehiclepositions.pb`,
+> `tripupdates.pb`, and the combined `trapezerealtimefeed.pb`. So the
+> primary driver of the board is the **static** schedule, parsed from
+> `stop_times.txt` and friends. `scripts/run_realtime.py` is kept around as
+> a no-op canary in case WeGo ever starts publishing rail data.
+
+Three scripts you'll actually run:
+
+- `scripts/hello_leds.py` — Phase 0 wiring smoke test
+- `scripts/fetch_static.py` — download & extract the static GTFS into `./data/`
+- `scripts/run_schedule.py` — Phase 2 schedule-driven polling loop
 
 ## Hardware
 
@@ -74,7 +82,7 @@ step-by-step wiring instructions.
 
 ```
 src/wego_metroboard/   library code (stations, GPIO helpers, feed URLs)
-scripts/               runnable entry points (hello_leds.py, fetch_static.py)
+scripts/               runnable entry points (hello_leds.py, fetch_static.py, run_schedule.py)
 docs/                  PHASES.md, WIRING.md, PI_SETUP.md
 data/                  GTFS zip + extracted CSVs (gitignored, populated by fetch_static.py)
 tests/                 (empty for now)
