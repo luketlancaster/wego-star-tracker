@@ -161,7 +161,7 @@ Plus one jumper from any hole on the `–` rail to Pi pin 6 (GND).
 ## Smoke test
 
 ```sh
-cd ~/wego-metroboard
+cd ~/wego-star-tracker
 source .venv/bin/activate
 python scripts/hello_leds.py
 ```

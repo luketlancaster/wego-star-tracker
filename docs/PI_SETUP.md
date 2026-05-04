@@ -203,8 +203,8 @@ Python < 3.11, the easiest fix is to re-image (Path A above).
 
 ```sh
 cd ~
-git clone <your-repo-url> wego-metroboard
-cd wego-metroboard
+git clone <your-repo-url> wego-star-tracker
+cd wego-star-tracker
 python3 -m venv --system-site-packages .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
@@ -216,7 +216,7 @@ less-preferred backend (or fail if none is available).
 
 > If you haven't pushed this repo to a Git host yet, you can `scp -r` the
 > directory from your laptop to the Pi instead:
-> `scp -r /Users/luke/Code/wego-star-tracker luke@metroboard.local:~/wego-metroboard`
+> `scp -r /Users/luke/Code/wego-star-tracker luke@metroboard.local:~/wego-star-tracker`
 
 ### 5. Smoke test in mock mode (no hardware required yet)
 
@@ -261,8 +261,8 @@ board comes up automatically after a power cycle.
 The unit file lives at [`deploy/metroboard.service`](../deploy/metroboard.service).
 It assumes:
 
-- Repo cloned at `/home/luke/wego-metroboard`
-- Venv at `/home/luke/wego-metroboard/.venv` (created with
+- Repo cloned at `/home/luke/wego-star-tracker`
+- Venv at `/home/luke/wego-star-tracker/.venv` (created with
   `--system-site-packages` so `lgpio` is visible)
 - User `luke` is in the `gpio` group (the default on Bookworm; check with
   `groups`)
@@ -302,7 +302,7 @@ sudo systemctl disable metroboard.service     # stop it from coming up at boot
 After updating code on the Pi:
 
 ```sh
-cd ~/wego-metroboard
+cd ~/wego-star-tracker
 git pull
 sudo systemctl restart metroboard.service
 ```
@@ -316,7 +316,7 @@ The service runs `run_schedule.py`, which reads `data/` once per day at the
 date rollover. To pull a new schedule:
 
 ```sh
-cd ~/wego-metroboard
+cd ~/wego-star-tracker
 source .venv/bin/activate
 python scripts/fetch_static.py
 sudo systemctl restart metroboard.service

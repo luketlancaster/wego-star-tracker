@@ -8,8 +8,8 @@ Wants=network-online.target
 Type=simple
 User=luke
 Group=luke
-WorkingDirectory=/home/luke/wego-metroboard
-ExecStart=/home/luke/wego-metroboard/.venv/bin/python scripts/run_schedule.py
+WorkingDirectory=/home/luke/wego-star-tracker
+ExecStart=/home/luke/wego-star-tracker/.venv/bin/python scripts/run_schedule.py
 Environment=PYTHONUNBUFFERED=1
 Restart=on-failure
 RestartSec=10s
