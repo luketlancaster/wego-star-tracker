@@ -238,6 +238,92 @@ python scripts/hello_leds.py
 Real LEDs should now light in geographic order, west to east, then east to
 west, then a 5-cycle Larson scan, then all 7 on for 2 s.
 
+### 7. Fetch the static GTFS data
+
+`scripts/run_schedule.py` reads `data/stop_times.txt` and friends, so you have
+to populate `data/` once before the first run:
+
+```sh
+python scripts/fetch_static.py
+```
+
+Re-run this periodically (or via cron) to pick up timetable changes — WeGo
+tweaks the schedule a few times a year.
+
+---
+
+## Run on boot with systemd
+
+Once the schedule-driven loop works by hand
+(`python scripts/run_schedule.py`), wire it up as a system service so the
+board comes up automatically after a power cycle.
+
+The unit file lives at [`deploy/metroboard.service`](../deploy/metroboard.service).
+It assumes:
+
+- Repo cloned at `/home/luke/wego-metroboard`
+- Venv at `/home/luke/wego-metroboard/.venv` (created with
+  `--system-site-packages` so `lgpio` is visible)
+- User `luke` is in the `gpio` group (the default on Bookworm; check with
+  `groups`)
+
+If your username or repo path differs, edit `User=`, `Group=`,
+`WorkingDirectory=`, and `ExecStart=` in the unit before installing.
+
+### Install and enable
+
+```sh
+sudo cp deploy/metroboard.service /etc/systemd/system/metroboard.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now metroboard.service
+```
+
+`enable --now` both enables-on-boot and starts it immediately.
+
+### Check status and logs
+
+```sh
+systemctl status metroboard.service
+journalctl -u metroboard.service -f
+```
+
+You should see the same `loaded N stop-windows for …` and `active = …` lines
+you saw running it by hand. The service logs to journald (no log file to
+rotate).
+
+### Common operations
+
+```sh
+sudo systemctl restart metroboard.service     # after a `git pull`
+sudo systemctl stop metroboard.service        # take it down (LEDs go off cleanly)
+sudo systemctl disable metroboard.service     # stop it from coming up at boot
+```
+
+After updating code on the Pi:
+
+```sh
+cd ~/wego-metroboard
+git pull
+sudo systemctl restart metroboard.service
+```
+
+If you change the unit file itself, also `sudo systemctl daemon-reload`
+before restarting.
+
+### Refreshing static GTFS
+
+The service runs `run_schedule.py`, which reads `data/` once per day at the
+date rollover. To pull a new schedule:
+
+```sh
+cd ~/wego-metroboard
+source .venv/bin/activate
+python scripts/fetch_static.py
+sudo systemctl restart metroboard.service
+```
+
+(Or skip the restart and let the next midnight rollover pick it up.)
+
 ---
 
 ## Troubleshooting
@@ -264,3 +350,14 @@ The venv can't see lgpio. Either you forgot `--system-site-packages` when
 creating it, or `python3-lgpio` isn't installed. Run
 `sudo apt install -y python3-lgpio`, then recreate the venv with
 `python3 -m venv --system-site-packages .venv`.
+
+**`metroboard.service` keeps restarting.**
+`journalctl -u metroboard.service -n 100` will show the traceback. Most
+common causes: `data/` is empty (run `scripts/fetch_static.py`), the venv or
+repo path in the unit doesn't match where you actually put things, or
+`python3-lgpio` isn't visible to the venv.
+
+**Service starts but LEDs never change.**
+Check the Pi's timezone with `timedatectl` — it should show
+`America/Chicago`. The schedule loop computes "now" in agency-local time, so
+a wrong system clock will match no windows.

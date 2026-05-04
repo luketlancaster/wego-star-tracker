@@ -5,7 +5,10 @@ A physical Metroboard — inspired by [designrules.co](https://www.designrules.c
 LED per station; an LED lights up when a train is at that station, driven by
 Nashville MTA's GTFS feeds.
 
-**Current phase:** Phase 2 — schedule-driven board. See [`docs/PHASES.md`](docs/PHASES.md).
+**Current phase:** Phase 2 — schedule-driven board, running on a Raspberry Pi
+4 as a systemd service (see [`deploy/metroboard.service`](deploy/metroboard.service)
+and the "Run on boot with systemd" section in [`docs/PI_SETUP.md`](docs/PI_SETUP.md)).
+Full phase plan in [`docs/PHASES.md`](docs/PHASES.md).
 
 > **Heads up:** WeGo's GTFS-realtime feed does not include the WeGo Star —
 > only the bus system. We verified the absence in `vehiclepositions.pb`,
@@ -78,11 +81,17 @@ See [`docs/PI_SETUP.md`](docs/PI_SETUP.md) for the full headless setup walkthrou
 running). [`docs/WIRING.md`](docs/WIRING.md) has the breadboard layout and
 step-by-step wiring instructions.
 
+To run the schedule loop as a system service so the board comes up after a
+power cycle, follow the "Run on boot with systemd" section in
+[`docs/PI_SETUP.md`](docs/PI_SETUP.md). The unit file lives at
+[`deploy/metroboard.service`](deploy/metroboard.service).
+
 ## Layout
 
 ```
 src/wego_metroboard/   library code (stations, GPIO helpers, feed URLs)
 scripts/               runnable entry points (hello_leds.py, fetch_static.py, run_schedule.py)
+deploy/                metroboard.service (systemd unit for the Pi)
 docs/                  PHASES.md, WIRING.md, PI_SETUP.md
 data/                  GTFS zip + extracted CSVs (gitignored, populated by fetch_static.py)
 tests/                 (empty for now)

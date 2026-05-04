@@ -1,0 +1,18 @@
+[Unit]
+Description=WeGo Metroboard schedule-driven LED board
+Documentation=https://github.com/lukelancaster/wego-star-tracker
+After=network-online.target time-sync.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=luke
+Group=luke
+WorkingDirectory=/home/luke/wego-metroboard
+ExecStart=/home/luke/wego-metroboard/.venv/bin/python scripts/run_schedule.py
+Environment=PYTHONUNBUFFERED=1
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target

@@ -49,4 +49,3 @@ the Arduino Uno earns its keep as a dedicated pixel driver.
 - Star Downtown Shuttle (route 64), West End Shuttle (route 93)
 - Service Alerts feed
 - Production enclosure / wood frame
-- systemd service for boot (add once Phase 1 is stable)
