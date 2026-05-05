@@ -28,9 +28,9 @@ from wego_metroboard.stations import Station
 if TYPE_CHECKING:
     from gpiozero import PWMLED
 
-_BLINK_ON_S = 0.6
-_BLINK_OFF_S = 0.6
-_PULSE_FADE_S = 0.8
+BLINK_ON_S = 0.6
+BLINK_OFF_S = 0.6
+PULSE_FADE_S = 0.8
 
 
 class LedState(StrEnum):
@@ -89,6 +89,6 @@ def _apply(led: PWMLED, new_state: LedState) -> None:
     elif new_state is LedState.OUTBOUND:
         led.on()
     elif new_state is LedState.INBOUND:
-        led.blink(on_time=_BLINK_ON_S, off_time=_BLINK_OFF_S)
+        led.blink(on_time=BLINK_ON_S, off_time=BLINK_OFF_S)
     elif new_state is LedState.BOTH:
-        led.pulse(fade_in_time=_PULSE_FADE_S, fade_out_time=_PULSE_FADE_S)
+        led.pulse(fade_in_time=PULSE_FADE_S, fade_out_time=PULSE_FADE_S)
